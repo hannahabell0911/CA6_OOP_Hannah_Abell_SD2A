@@ -7,4 +7,6 @@ import java.util.List;
 public interface AlbumsDaoInterface {
     public List<Albums> findAllAlbums() throws DaoException;
     Albums findAlbumByAlbumID() throws DaoException;
+    Albums findAlbumByTitle() throws DaoException;
+    public boolean deleteAlbumByAlbumID() throws DaoException;
 }
