@@ -10,201 +10,132 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
+    Connection connection = null;
+    PreparedStatement ps = null;
+    ResultSet resultSet = null;
 
-    Scanner kb = new Scanner(System.in);
     @Override
-    public List<Albums> findAllAlbums() throws DaoException
-    {
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet resultSet = null;
+    public List<Albums> findAllAlbums() throws DaoException {
+
         List<Albums> albumsList = new ArrayList<>();
-
-        try
-        {
-            //Get connection object using the methods in the super class (MySqlDao.java)...
-            connection = this.getConnection();
-
-            String query = "SELECT * FROM ALBUMS";
-            ps = connection.prepareStatement(query);
-
-            //Using a PreparedStatement to execute SQL...
-            resultSet = ps.executeQuery();
-            while (resultSet.next())
-            {
-                int albumID = resultSet.getInt("ALBUM_ID");
-                String albumTitle = resultSet.getString("ALBUM_TITLE");
-                String artistName = resultSet.getString("ARTIST_NAME");
-                int year = resultSet.getInt("RELEASE_YEAR");
-                float price = resultSet.getFloat("PRICE");
-                Albums m = new Albums(albumID,albumTitle, artistName, year, price);
+        String getAlbumsSQL = "SELECT * FROM ALBUMS";
+        try (Connection con = this.getConnection();
+             PreparedStatement ps = con.prepareStatement(getAlbumsSQL);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int albumID = rs.getInt("ALBUM_ID");
+                String albumTitle = rs.getString("ALBUM_TITLE");
+                String artistName = rs.getString("ARTIST_NAME");
+                int year = rs.getInt("RELEASE_YEAR");
+                float price = rs.getFloat("PRICE");
+                Albums m = new Albums(albumID, albumTitle, artistName, year, price);
                 albumsList.add(m);
             }
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new DaoException("findAllAlbumsResultSet() " + e.getMessage());
-        } finally
-        {
-            try
-            {
-                if (resultSet != null)
-                {
-                    resultSet.close();
-                }
-                if (ps != null)
-                {
-                    ps.close();
-                }
-                if (connection != null)
-                {
-                    freeConnection(connection);
-                }
-            } catch (SQLException e)
-            {
-                throw new DaoException("findAllAlbums() " + e.getMessage());
-            }
         }
         return albumsList;     // may be empty
     }
 
+
     @Override
-    public Albums findAlbumByAlbumID() throws DaoException
-    {
-        System.out.println("Enter the album ID: ");
-        int albumId = kb.nextInt();
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet resultSet = null;
-        Albums m = null;
+    public Albums findAlbumByTitle(String albumTitle) throws DaoException {
+        Albums album = null;
+        String getAlbumSQL = "SELECT * FROM ALBUMS WHERE ALBUM_TITLE = ?";
 
-        try
-        {
-            //Get connection object using the methods in the super class (MySqlDao.java)...
-            connection = this.getConnection();
-
-            String query = "SELECT * FROM ALBUMS WHERE ALBUM_ID = " + albumId;
-            ps = connection.prepareStatement(query);
-
-            //Using a PreparedStatement to execute SQL...
-            resultSet = ps.executeQuery();
-            if (resultSet.next())
-            {
-                String albumTitle = resultSet.getString("ALBUM_TITLE");
-                String artistName = resultSet.getString("ARTIST_NAME");
-                int year = resultSet.getInt("RELEASE_YEAR");
-                float price = resultSet.getFloat("PRICE");
-                m = new Albums(albumId, albumTitle, artistName, year, price);
+        try (Connection con = this.getConnection();
+             PreparedStatement ps = con.prepareStatement(getAlbumSQL)) {
+            ps.setString(1, albumTitle);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int albumID = rs.getInt("ALBUM_ID");
+                String artistName = rs.getString("ARTIST_NAME");
+                int year = rs.getInt("RELEASE_YEAR");
+                float price = rs.getFloat("PRICE");
+                album = new Albums(albumID, albumTitle, artistName, year, price);
             }
-        } catch (SQLException e)
-        {
-            throw new DaoException("findAlbumByAlbumIDResultSet() " + e.getMessage());
-        } finally
-        {
-            try
-            {
-                if (resultSet != null)
-                {
-                    resultSet.close();
-                }
-                if (ps != null)
-                {
-                    ps.close();
-                }
-                if (connection != null)
-                {
-                    freeConnection(connection);
-                }
-            } catch (SQLException e)
-            {
-                throw new DaoException("findAlbumByAlbumID() " + e.getMessage());
-            }
-        }
-        return m;     // may be null
-    }
-//create function findAlbumByTitle
-    @Override
-    public Albums findAlbumByTitle() throws DaoException
-    {
-        System.out.println("Enter the album title: ");
-        String albumTitle = kb.next();
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet resultSet = null;
-        Albums m = null;
-
-        try
-        {
-            //Get connection object using the methods in the super class (MySqlDao.java)...
-            connection = this.getConnection();
-
-            String query = "SELECT * FROM ALBUMS WHERE ALBUM_TITLE like '%" + albumTitle + "%'";
-            ps = connection.prepareStatement(query);
-
-            //Using a PreparedStatement to execute SQL...
-            resultSet = ps.executeQuery();
-            if (resultSet.next())
-            {
-                int albumId = resultSet.getInt("ALBUM_ID");
-                String albumTitle1 = resultSet.getString("ALBUM_TITLE");
-                String artistName = resultSet.getString("ARTIST_NAME");
-                int year = resultSet.getInt("RELEASE_YEAR");
-                float price = resultSet.getFloat("PRICE");
-                m = new Albums(albumId, albumTitle1, artistName, year, price);
-            }
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new DaoException("findAlbumByTitleResultSet() " + e.getMessage());
-        } finally
-        {
-            try
-            {
-                if (resultSet != null)
-                {
-                    resultSet.close();
-                }
-                if (ps != null)
-                {
-                    ps.close();
-                }
-                if (connection != null)
-                {
-                    freeConnection(connection);
-                }
-            } catch (SQLException e)
-            {
-                throw new DaoException("findAlbumByTitle() " + e.getMessage());
-            }
         }
-        return m;     // may be null
+        return album;
     }
-    //create function deleteAlbumByAlbumID
-    @Override
-    public boolean deleteAlbumByAlbumID() throws DaoException
+    public boolean deleteAlbumByAlbumID(int albumID) throws DaoException
     {
-        System.out.println("Enter the album ID: ");
-        int albumId = kb.nextInt();
-        Connection connection = null;
+        Connection con = null;
+
         PreparedStatement ps = null;
-        ResultSet resultSet = null;
-        boolean result = false;
+        ResultSet rs = null;
 
         try
         {
-            //Get connection object using the methods in the super class (MySqlDao.java)...
+            con = this.getConnection();
+
+            String Query = "SELECT * FROM albums WHERE album_id = ?";
+            ps = con.prepareStatement(Query);
+            ps.setInt(1, albumID);
+
+            rs = ps.executeQuery();
+
+
+            if(!rs.next())
+            {
+                return false;
+            }
+
+            String deleteAlbumQuery = "DELETE FROM albums WHERE album_id = ?";
+            ps = con.prepareStatement(deleteAlbumQuery);
+            ps.setInt(1, albumID);
+            ps.executeUpdate();
+        }
+        catch(SQLException sqle)
+        {
+            throw new DaoException("deleteAlbumByAlbumID() " + sqle.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                if(rs != null)
+                {
+                    rs.close();
+                }
+                if(ps != null)
+                {
+                    ps.close();
+                }
+                if(con != null)
+                {
+                    this.freeConnection(con);
+                }
+            }
+            catch(SQLException sqle)
+            {
+                throw new DaoException("findAllAlbums() " + sqle.getMessage());
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void insertnewAlbum(Albums album) throws DaoException {
+        try
+        {
             connection = this.getConnection();
 
-            String query = "DELETE FROM ALBUMS WHERE ALBUM_ID = " + albumId;
+            String query = "insert into albums (album_title, artist_name, release_year, price) values (?, ?, ?, ?)";
             ps = connection.prepareStatement(query);
+            ps.setString(1, album.getAlbum_title());
+            ps.setString(2, album.getArtist_name());
+            ps.setInt(3, album.getYear());
+            ps.setFloat(4, album.getPrice());
+
 
             //Using a PreparedStatement to execute SQL...
-            int affectedRows = ps.executeUpdate();
-            if (affectedRows == 1)
-            {
-                result = true;
-            }
+            ps.executeUpdate();
         } catch (SQLException e)
         {
-            throw new DaoException("deleteAlbumByAlbumIDResultSet() " + e.getMessage());
+            throw new DaoException("insertNewAlbumResultSet() " + e.getMessage());
         } finally
         {
             try
@@ -223,9 +154,14 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
                 }
             } catch (SQLException e)
             {
-                throw new DaoException("deleteAlbumByAlbumID() " + e.getMessage());
+                throw new DaoException("insertNewAlbum() " + e.getMessage());
             }
         }
-        return result;     // may be null
     }
 }
+
+
+
+
+
+

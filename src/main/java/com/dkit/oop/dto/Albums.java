@@ -15,7 +15,13 @@ public class Albums {
         this.year = year;
         this.price = price;
     }
-
+public Albums( String album_title, String artist_name, int year, float price) {
+        this.album_id = 0;
+        this.album_title = album_title;
+        this.artist_name = artist_name;
+        this.year = year;
+        this.price = price;
+    }
     public int getAlbum_id() {
         return album_id;
     }

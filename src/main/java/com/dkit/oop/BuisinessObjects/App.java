@@ -10,15 +10,42 @@ import java.util.List;
 import java.util.Scanner;
 
 public class App {
+    private static Albums insertNewAlbums() {
+        Scanner kb = new Scanner(System.in);
+
+        String albumTitle = "";
+
+        System.out.println("Enter Title Name:");
+        albumTitle = kb.nextLine();
+
+        String artistName = "";
+
+        System.out.println("Enter Artist Name:");
+        artistName = kb.nextLine();
+
+
+        int releaseYear = 0;
+
+        System.out.println("Enter Release Year:");
+        releaseYear = kb.nextInt();
+
+        float albumPrice = 0;
+
+        System.out.println("Enter Album Price:");
+        albumPrice = kb.nextFloat();
+
+
+        return new Albums(albumTitle, artistName, releaseYear, albumPrice);
+    }
     private static final Scanner keyboard = new Scanner(System.in);
     public static void main(String[] args) throws DaoException {
         AlbumsDaoInterface IAlbumDao = new MySqlAlbumDao();
         System.out.println( "Welcome to Hannah's Music App" );
         System.out.println( "Please enter your choice" );
         System.out.println( "1. Find all albums" );
-        System.out.println( "2. Find album by album ID" );
-        System.out.println( "3. Find album by title" );
-        System.out.println( "4. Delete album by album ID" );
+        System.out.println( "2. Find album by title" );
+        System.out.println( "3. Delete album by album ID" );
+        System.out.println( "4. Add album" );
         System.out.println( "5. Exit" );
         int choice = keyboard.nextInt();
         switch (choice) {
@@ -27,15 +54,21 @@ public class App {
                 System.out.println(albums);
                 break;
             case 2:
-                Albums a = IAlbumDao.findAlbumByAlbumID();
-                System.out.println(a);
+                System.out.println("Enter album title");
+                String albumTitle = keyboard.next();
+                Albums album = IAlbumDao.findAlbumByTitle(albumTitle);
+                System.out.println(album);
                 break;
             case 3:
-                Albums a2 = IAlbumDao.findAlbumByTitle();
-                System.out.println(a2);
+                System.out.println("Enter album ID");
+                int albumID = keyboard.nextInt();
+                IAlbumDao.deleteAlbumByAlbumID(albumID);
+                System.out.println(albumID);
                 break;
             case 4:
-                IAlbumDao.deleteAlbumByAlbumID();
+           IAlbumDao.insertnewAlbum(insertNewAlbums());
+
+
                 break;
             case 5:
                 System.out.println("Goodbye");

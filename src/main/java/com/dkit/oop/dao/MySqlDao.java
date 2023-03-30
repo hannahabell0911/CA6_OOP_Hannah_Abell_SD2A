@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import com.dkit.oop.Exceptions.DaoException;
 
 public class MySqlDao {
+
+
     public Connection getConnection() throws DaoException
     {
         String driver = "com.mysql.cj.jdbc.Driver";

@@ -12,8 +12,8 @@ USE `music`;
 --
 CREATE TABLE album (
   album_id INT NOT NULL AUTO_INCREMENT,
-  album_title VARCHAR(255) NOT NULL,
-  artist_name VARCHAR(255) NOT NULL,
+  album_title VARCHAR(20) NOT NULL,
+  artist_name VARCHAR(20) NOT NULL,
   release_year INT NOT NULL,
   price FLOAT NOT NULL,
   PRIMARY KEY (album_id)
