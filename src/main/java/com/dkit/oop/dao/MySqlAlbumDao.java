@@ -1,4 +1,5 @@
 package com.dkit.oop.dao;
+import com.dkit.oop.Comparator.AlbumPriceComparator;
 import com.dkit.oop.dto.Albums;
 import com.dkit.oop.Exceptions.DaoException;
 import java.sql.Connection;
@@ -42,21 +43,32 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
     public Albums findAlbumByTitle(String albumTitle) throws DaoException {
         Albums album = null;
         String getAlbumSQL = "SELECT * FROM ALBUMS WHERE ALBUM_TITLE = ?";
+        String checkTitleSQL = "SELECT COUNT(*) FROM ALBUMS WHERE ALBUM_TITLE = ?";
 
         try (Connection con = this.getConnection();
-             PreparedStatement ps = con.prepareStatement(getAlbumSQL)) {
-            ps.setString(1, albumTitle);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int albumID = rs.getInt("ALBUM_ID");
-                String artistName = rs.getString("ARTIST_NAME");
-                int year = rs.getInt("RELEASE_YEAR");
-                float price = rs.getFloat("PRICE");
-                album = new Albums(albumID, albumTitle, artistName, year, price);
+             PreparedStatement psCheck = con.prepareStatement(checkTitleSQL)) {
+            psCheck.setString(1, albumTitle);
+            ResultSet rsCheck = psCheck.executeQuery();
+            rsCheck.next();
+            int count = rsCheck.getInt(1);
+
+            if (count > 0) {
+                try (PreparedStatement psGetAlbum = con.prepareStatement(getAlbumSQL)) {
+                    psGetAlbum.setString(1, albumTitle);
+                    ResultSet rs = psGetAlbum.executeQuery();
+                    if (rs.next()) {
+                        int albumID = rs.getInt("ALBUM_ID");
+                        String artistName = rs.getString("ARTIST_NAME");
+                        int year = rs.getInt("RELEASE_YEAR");
+                        float price = rs.getFloat("PRICE");
+                        album = new Albums(albumID, albumTitle, artistName, year, price);
+                    }
+                }
             }
         } catch (SQLException e) {
-            throw new DaoException("findAlbumByTitleResultSet() " + e.getMessage());
+            throw new DaoException("findAlbumByTitle() " + e.getMessage());
         }
+
         return album;
     }
     public boolean deleteAlbumByAlbumID(int albumID) throws DaoException
@@ -157,6 +169,47 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
                 throw new DaoException("insertNewAlbum() " + e.getMessage());
             }
         }
+    }
+    @Override
+    public List<Albums> listAlbumsByPrice() throws DaoException {
+        MySqlAlbumDao ad = new MySqlAlbumDao();
+        List<Albums> albums = ad.findAllAlbums();
+        albums.sort(new AlbumPriceComparator());
+        return albums;
+    }
+    @Override
+    // Create a Cache using a HashSet to store the album ids
+    public List<Albums> findAllAlbumsCache() throws DaoException {
+        List<Albums> albumsList = new ArrayList<>();
+        String getAlbumsSQL = "SELECT * FROM ALBUMS";
+        try (Connection con = this.getConnection();
+             PreparedStatement ps = con.prepareStatement(getAlbumsSQL);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int albumID = rs.getInt("ALBUM_ID");
+                String albumTitle = rs.getString("ALBUM_TITLE");
+                String artistName = rs.getString("ARTIST_NAME");
+                int year = rs.getInt("RELEASE_YEAR");
+                float price = rs.getFloat("PRICE");
+                Albums m = new Albums(albumID, albumTitle, artistName, year, price);
+                albumsList.add(m);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("findAllAlbumsResultSet() " + e.getMessage());
+        }
+        return albumsList;     // may be empty
+
+    }
+    @Override
+    //checkAlbumExists() method to check if the album exists in the cache
+    public boolean checkAlbumExists(int albumID) throws DaoException {
+        List<Albums> albums = findAllAlbumsCache();
+        for (Albums a : albums) {
+            if (a.getAlbum_id() == albumID) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

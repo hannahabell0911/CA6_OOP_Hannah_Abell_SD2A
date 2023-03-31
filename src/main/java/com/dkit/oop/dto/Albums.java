@@ -70,6 +70,6 @@ public Albums( String album_title, String artist_name, int year, float price) {
                 ", artist_name='" + artist_name + '\'' +
                 ", year=" + year +
                 ", price=" + price +
-                '}';
+                '}' + "\n";
     }
 }

@@ -10,4 +10,7 @@ public interface AlbumsDaoInterface {
     Albums findAlbumByTitle(String albumTitle) throws DaoException;
     public boolean deleteAlbumByAlbumID(int albumID) throws DaoException;
     public void insertnewAlbum(Albums album) throws DaoException;
+    public List<Albums> listAlbumsByPrice() throws DaoException;
+    public List<Albums> findAllAlbumsCache() throws DaoException;
+    public boolean checkAlbumExists(int albumID) throws DaoException;
 }

@@ -46,7 +46,8 @@ public class App {
         System.out.println( "2. Find album by title" );
         System.out.println( "3. Delete album by album ID" );
         System.out.println( "4. Add album" );
-        System.out.println( "5. Exit" );
+        System.out.println( "5. Compare by Price" );
+        System.out.println( "6. Exit" );
         int choice = keyboard.nextInt();
         switch (choice) {
             case 1:
@@ -67,14 +68,16 @@ public class App {
                 break;
             case 4:
            IAlbumDao.insertnewAlbum(insertNewAlbums());
-
-
                 break;
             case 5:
+                List<Albums> albums1 = IAlbumDao.listAlbumsByPrice();
+                System.out.println(albums1 + "\n" );
+                break;
+            case 6:
                 System.out.println("Goodbye");
                 System.exit(0);
                 break;
-            default:
+                 default:
                 System.out.println("Invalid choice");
                 break;
         }
