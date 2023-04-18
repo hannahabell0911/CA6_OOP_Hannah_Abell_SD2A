@@ -207,7 +207,16 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
         Gson gsonParser = new Gson();
         return gsonParser.toJson(albumsList);
     }
+    @Override
+    public String findAlbumByTitleJson(String albumTitle) throws DaoException
+    {
+        Albums album = findAlbumByTitle(albumTitle);
 
+        if(album == null) return null;
+
+        Gson gsonParser = new Gson();
+        return gsonParser.toJson(album);
+    }
 }
 
 

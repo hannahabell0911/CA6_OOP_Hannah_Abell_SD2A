@@ -48,6 +48,8 @@ public class App {
         System.out.println( "4. Add album" );
         System.out.println( "5. Compare by Price" );
         System.out.println( "6. Find all Albums cache" );
+        System.out.println( "7. Find all Albums Json" );
+        System.out.println( "8. Find album by title Json" );
         int choice = keyboard.nextInt();
         switch (choice) {
             case 1:
@@ -82,6 +84,12 @@ public class App {
                 System.out.println(albums3);
                 break;
             case 8:
+                System.out.println("Enter album title");
+                String albumTitle1 = keyboard.next();
+                String album1 = IAlbumDao.findAlbumByTitleJson(albumTitle1);
+                System.out.println(album1);
+                break;
+            case 9:
                 System.out.println("Goodbye");
                 System.exit(0);
                 break;

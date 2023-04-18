@@ -14,4 +14,5 @@ public interface AlbumsDaoInterface {
     public List<Albums> findAllAlbumsCache() throws DaoException;
     public boolean checkAlbumExists(int albumID) throws DaoException;
     public String findAllAlbumsJson() throws DaoException;
+    public String findAlbumByTitleJson(String albumTitle) throws DaoException;
 }
