@@ -47,7 +47,7 @@ public class App {
         System.out.println( "3. Delete album by album ID" );
         System.out.println( "4. Add album" );
         System.out.println( "5. Compare by Price" );
-        System.out.println( "6. Exit" );
+        System.out.println( "6. Find all Albums cache" );
         int choice = keyboard.nextInt();
         switch (choice) {
             case 1:
@@ -74,6 +74,14 @@ public class App {
                 System.out.println(albums1 + "\n" );
                 break;
             case 6:
+                List<Albums> albums2 = IAlbumDao.findAllAlbumsCache();
+                System.out.println(albums2);
+                break;
+            case 7:
+                String albums3 = IAlbumDao.findAllAlbumsJson();
+                System.out.println(albums3);
+                break;
+            case 8:
                 System.out.println("Goodbye");
                 System.exit(0);
                 break;

@@ -2,6 +2,9 @@ package com.dkit.oop.dao;
 import com.dkit.oop.Comparator.AlbumPriceComparator;
 import com.dkit.oop.dto.Albums;
 import com.dkit.oop.Exceptions.DaoException;
+import com.google.gson.Gson;
+
+import javax.management.Query;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -71,15 +74,14 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
 
         return album;
     }
-    public boolean deleteAlbumByAlbumID(int albumID) throws DaoException
-    {
+
+    public boolean deleteAlbumByAlbumID(int albumID) throws DaoException {
         Connection con = null;
 
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        try
-        {
+        try {
             con = this.getConnection();
 
             String Query = "SELECT * FROM albums WHERE album_id = ?";
@@ -89,8 +91,7 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
             rs = ps.executeQuery();
 
 
-            if(!rs.next())
-            {
+            if (!rs.next()) {
                 return false;
             }
 
@@ -98,30 +99,20 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
             ps = con.prepareStatement(deleteAlbumQuery);
             ps.setInt(1, albumID);
             ps.executeUpdate();
-        }
-        catch(SQLException sqle)
-        {
+        } catch (SQLException sqle) {
             throw new DaoException("deleteAlbumByAlbumID() " + sqle.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                if(rs != null)
-                {
+        } finally {
+            try {
+                if (rs != null) {
                     rs.close();
                 }
-                if(ps != null)
-                {
+                if (ps != null) {
                     ps.close();
                 }
-                if(con != null)
-                {
+                if (con != null) {
                     this.freeConnection(con);
                 }
-            }
-            catch(SQLException sqle)
-            {
+            } catch (SQLException sqle) {
                 throw new DaoException("findAllAlbums() " + sqle.getMessage());
             }
         }
@@ -131,8 +122,7 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
 
     @Override
     public void insertnewAlbum(Albums album) throws DaoException {
-        try
-        {
+        try {
             connection = this.getConnection();
 
             String query = "insert into albums (album_title, artist_name, release_year, price) values (?, ?, ?, ?)";
@@ -145,31 +135,25 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
 
             //Using a PreparedStatement to execute SQL...
             ps.executeUpdate();
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new DaoException("insertNewAlbumResultSet() " + e.getMessage());
-        } finally
-        {
-            try
-            {
-                if (resultSet != null)
-                {
+        } finally {
+            try {
+                if (resultSet != null) {
                     resultSet.close();
                 }
-                if (ps != null)
-                {
+                if (ps != null) {
                     ps.close();
                 }
-                if (connection != null)
-                {
+                if (connection != null) {
                     freeConnection(connection);
                 }
-            } catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new DaoException("insertNewAlbum() " + e.getMessage());
             }
         }
     }
+
     @Override
     public List<Albums> listAlbumsByPrice() throws DaoException {
         MySqlAlbumDao ad = new MySqlAlbumDao();
@@ -177,6 +161,7 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
         albums.sort(new AlbumPriceComparator());
         return albums;
     }
+
     @Override
     // Create a Cache using a HashSet to store the album ids
     public List<Albums> findAllAlbumsCache() throws DaoException {
@@ -200,6 +185,7 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
         return albumsList;     // may be empty
 
     }
+
     @Override
     //checkAlbumExists() method to check if the album exists in the cache
     public boolean checkAlbumExists(int albumID) throws DaoException {
@@ -211,6 +197,17 @@ public class MySqlAlbumDao extends MySqlDao implements AlbumsDaoInterface {
         }
         return false;
     }
+    @Override
+    public String findAllAlbumsJson() throws DaoException
+    {
+        List<Albums> albumsList = findAllAlbums();
+
+        if(albumsList == null || albumsList.isEmpty()) return null;
+
+        Gson gsonParser = new Gson();
+        return gsonParser.toJson(albumsList);
+    }
+
 }
 
 
